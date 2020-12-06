@@ -13,7 +13,11 @@ This app uses Chakra UI as Component library with Next.js .
 
 <br/>
 
-## To Install
+## [Click here](https://next-js-firebase-boilerplate.vercel.app/) To View Live app
+
+<br/>
+
+## Install Locally
 
 ### Using `create-next-app`
 
