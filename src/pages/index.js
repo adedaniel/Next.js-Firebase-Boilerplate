@@ -1,55 +1,57 @@
-import {
-  Link as ChakraLink,
-  Text,
-  Code,
-  Icon,
-  List,
-  ListIcon,
-  ListItem,
-} from '@chakra-ui/core'
+import { Box, Flex } from "@chakra-ui/core";
+import Router from "next/router";
+import React, { useEffect, useState } from "react";
+import ContactForm from "../components/contactForm";
+import ContactView from "../components/contactView";
+import firebaseDb, { fireAuth } from "../firebase";
 
-import { Hero } from '../components/Hero'
-import { Container } from '../components/Container'
-import { Main } from '../components/Main'
-import { DarkModeSwitch } from '../components/DarkModeSwitch'
-import { CTA } from '../components/CTA'
-import { Footer } from '../components/Footer'
+export default function Index() {
+  const [contacts, setContacts] = useState({});
+  const [user, setUser] = useState({});
+  useEffect(() => {
+    fireAuth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("user found");
+        setUser(user);
+      } else {
+        console.log("no user");
+        setUser(null);
+      }
+    });
+  }, []);
 
-const Index = () => (
-  <Container>
-    <Hero />
-    <Main>
-      <Text>
-        Example repository of <Code>Next.js</Code> + <Code>chakra-ui</Code>.
-      </Text>
+  useEffect(() => {
+    firebaseDb.child("contacts").on("value", (snapshot) => {
+      snapshot.val();
+      if (snapshot.val()) {
+        setContacts({ ...snapshot.val() });
+      } else {
+        setContacts({});
+      }
+    });
+  }, []);
 
-      <List spacing={3} my={0}>
-        <ListItem>
-          <ListIcon icon="check-circle" color="green.500" />
-          <ChakraLink
-            isExternal
-            href="https://chakra-ui.com"
-            flexGrow={1}
-            mr={2}
-          >
-            Chakra UI <Icon name="external-link" mx="2px" />
-          </ChakraLink>
-        </ListItem>
-        <ListItem>
-          <ListIcon icon="check-circle" color="green.500" />
-          <ChakraLink isExternal href="https://nextjs.org" flexGrow={1} mr={2}>
-            Next.js <Icon name="external-link" mx="2px" />
-          </ChakraLink>
-        </ListItem>
-      </List>
-    </Main>
+  const addContact = (contact) => {
+    firebaseDb
+      .child("contacts")
+      .push(contact, (err) => err && console.log(err));
+  };
+  const onLogout = () => {
+    fireAuth.signOut();
+  };
 
-    <DarkModeSwitch />
-    <Footer>
-      <Text>Next ❤️ Chakra</Text>
-    </Footer>
-    <CTA />
-  </Container>
-)
+  useEffect(() => {
+    !user && Router.push("/login");
+  }, [user]);
 
-export default Index
+  return (
+    <Box>
+      <Flex flexWrap="wrap" mt={24} justify="space-around">
+        <>
+          <ContactForm onLogout={onLogout} addContact={addContact} />
+          <ContactView contacts={contacts} />
+        </>
+      </Flex>
+    </Box>
+  );
+}
