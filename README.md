@@ -3,7 +3,7 @@
 ### This boilerplate utilizes Firebase Realtime Database, Firestore and Firebase Auth in a Next.js App.
 
 <br/>
-This app uses Chakra UI as Component library with Next.js .
+This app uses Chakra UI as Component library with Next.js.
 
 ## Features
 
